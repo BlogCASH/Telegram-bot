@@ -1,32 +1,44 @@
-import logging 
-import asyncio
-import wikipedia
-import os
-from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, types , F
-from aiogram.filters import CommandStart
+import telebot
+from telebot import types
 
-load_dotenv()
+TOKEN = ""
 
-wikipedia.set_lang("uz")
-API_TOKEN = ''
-bot = bot = Bot(token=API_TOKEN)
-dp = Dispatcher()
-logging.basicConfig(level=logging.INFO)
-@dp.message(CommandStart())
-async def send_welcome(message: types.Message):
-    await message.answer("Salom!    Men Wikipedia botiman. Siz menga biror mavzu haqida so'rashing  mumkin. Masalan, 'Python dasturlash tili' yoki 'O'zbekiston tarixi'")
-@dp.message(F.text)
-async def send_wikipedia_summary(message: types.Message):
-    query = message.text
-    try:
-        summary = wikipedia.summary(query, sentences=3)
-        await message.answer(summary)
-    except wikipedia.exceptions.DisambiguationError as e:
-        await message.answer(f"Bu mavzu bir nechta ma'nolarga ega. Iltimos, quyidagi variantlardan birini tanlang:\n{e.options}")
-    except wikipedia.exceptions.PageError:
-        await message.answer("Kechirasiz, bu mavzu topilmadi. Iltimos, boshqa mavzu haqida so'rang.")
-async def main():
-    await dp.start_polling(bot)    
-if __name__ == '__main__':
-    asyncio.run(dp.start_polling(bot))
+bot = telebot.TeleBot(TOKEN)
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn1 = types.KeyboardButton("📚 Kurslar")
+    btn2 = types.KeyboardButton("📞 Admin")
+    markup.add(btn1, btn2)
+
+    bot.send_message(message.chat.id,
+    "Assalomu alaykum!\nKurslarni ko‘rish uchun tugmani bosing.",
+    reply_markup=markup)
+
+@bot.message_handler(func=lambda m: m.text == "📚 Kurslar")
+def kurslar(message):
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton("Python kursi - 50 000 so'm", callback_data="python")
+    btn2 = types.InlineKeyboardButton("SMM kursi - 40 000 so'm", callback_data="smm")
+
+    markup.add(btn1)
+    markup.add(btn2)
+
+    bot.send_message(message.chat.id, "Kerakli kursni tanlang:", reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+
+    if call.data == "python":
+        bot.send_message(call.message.chat.id,
+        "💳 To‘lov uchun karta:\n8600 1234 5678 9012\n\nTo‘lovdan keyin chekni yuboring.")
+
+    if call.data == "smm":
+        bot.send_message(call.message.chat.id,
+        "💳 To‘lov uchun karta:\n8600 1234 5678 9012\n\nTo‘lovdan keyin chekni yuboring.")
+
+@bot.message_handler(content_types=['photo'])
+def check(message):
+    bot.send_message(message.chat.id,
+    "✅ To‘lov qabul qilindi.\n\nMana kurs linki:\nhttps://t.me/yourkurs")
