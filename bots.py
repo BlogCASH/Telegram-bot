@@ -7,6 +7,11 @@ db = Dispatcher() #dispechirdan obyekt olsih
 @db.message(Command("start")) # userdan kelgan buyruqni filtirlash
 async def Start_hadler(message : types.Message):
     await message.answer("Botga kirishdan maqsadingiz nima ?") #bu userga malumot chiqarish
+
+@db.message(Command("help")) # userdan kelgan buyruqni filtirlash
+async def Start_had(message : types.Message):
+    await message.answer("Botimizning qayeriga tushunmayabsiz ?") #bu userga malumot chiqarish
+
 async def main():
     await db.start_polling(bot) # botni ishga tushuruvchi Funksiya
 asyncio.run(main())
