@@ -12,7 +12,7 @@ db = Dispatcher() #dispechirdan obyekt olish
 
 kb = ReplyKeyboardMarkup(
     keyboard = [[KeyboardButton(text="Kurslar")]],
-
+    keyboard =[[KeyboardButton(text="Narhlar")]],
     resize_keyboard=True
 )
 
@@ -32,41 +32,14 @@ async def Start_had(message : types.Message):
 
 @db.message()
 async def msg(message: types.Message):
-    if message.text == "Salom":
+    if message.text == "Kurslar":
         await message.answer("Bizning kurslarimiz . IT , Ingilis tili va boshqalar")
+
+@db.message()
+async def msg(message: types.Message):
+    if message.text == "Narhlar":
+        await message.answer("IT - 500 ming so'm, Ingilis tili - 200 ming so'm , Dizayn - 250 ming so'm")
     
 async def main():
     await db.start_polling(bot) # botni ishga tushuruvchi Funksiya
 asyncio.run(main())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
