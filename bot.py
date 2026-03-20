@@ -1,44 +1,43 @@
-import telebot
-from telebot import types
+import asyncio
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
 
 TOKEN = ""
+ADMIN_ID =  123456789
 
-bot = telebot.TeleBot(TOKEN)
+bot = Bot(token=TOKEN)
+dp = Dispatcher()
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("📚 Kurslar")
-    btn2 = types.KeyboardButton("📞 Admin")
-    markup.add(btn1, btn2)
 
-    bot.send_message(message.chat.id,
-    "Assalomu alaykum!\nKurslarni ko‘rish uchun tugmani bosing.",
-    reply_markup=markup)
+users = {}
 
-@bot.message_handler(func=lambda m: m.text == "📚 Kurslar")
-def kurslar(message):
-    markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton("Python kursi - 50 000 so'm", callback_data="python")
-    btn2 = types.InlineKeyboardButton("SMM kursi - 40 000 so'm", callback_data="smm")
 
-    markup.add(btn1)
-    markup.add(btn2)
+@dp.message(Command("start"))
+async def start(message: types.Message):
+    await message.answer("Ismingizni yozing:")
+    users[message.from_user.id] = {}
 
-    bot.send_message(message.chat.id, "Kerakli kursni tanlang:", reply_markup=markup)
 
-@bot.callback_query_handler(func=lambda call: True)
-def callback(call):
+@dp.message()
+async def get_name(message: types.Message):
+    user_id = message.from_user.id
 
-    if call.data == "python":
-        bot.send_message(call.message.chat.id,
-        "💳 To‘lov uchun karta:\n8600 1234 5678 9012\n\nTo‘lovdan keyin chekni yuboring.")
+    if user_id in users:
+        name = message.text
+        users[user_id]["name"] = name
 
-    if call.data == "smm":
-        bot.send_message(call.message.chat.id,
-        "💳 To‘lov uchun karta:\n8600 1234 5678 9012\n\nTo‘lovdan keyin chekni yuboring.")
+        
+        await bot.send_message(
+            ADMIN_ID,
+            f"Yangi user:\nIsm: {name}\nID: {user_id}"
+        )
 
-@bot.message_handler(content_types=['photo'])
-def check(message):
-    bot.send_message(message.chat.id,
-    "✅ To‘lov qabul qilindi.\n\nMana kurs linki:\nhttps://t.me/yourkurs")
+        await message.answer("Rahmat! Ma'lumot qabul qilindi ")
+
+        del users[user_id]
+
+
+async def main():
+    await dp.start_polling(bot)
+
+asyncio.run(main())
